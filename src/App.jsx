@@ -1,14 +1,8 @@
-import FeaturedArtworks from './components/FeaturedArtworks'
-import FeaturedGallery from './components/FeaturedGallery'
+import AboutPage from './components/AboutPage'
 import './App.css'
 
 function App() {
-  return (
-    <main className="bg-[#0a0a0a]">
-      <FeaturedArtworks />
-      <FeaturedGallery />
-    </main>
-  )
+  return <AboutPage />
 }
 
 export default App
