@@ -20,15 +20,19 @@ const timelineData = [
   },
   {
     year: 'Heritage',
-    title: 'A Brief History of Art',
-    content:
+    content: `India, being the oldest and the first in the culture and also it's first in producing the different kind of artifacts or arts.
+Be it Vatsyayana who introduced art of love through Kamasutra or Raja Ravi Verma who portrayed the beauty of woman on canvas and brought it to life through his vision.
+There were times when artists used to engrave their craft on stones and walls, and later on it all converted into papers, canvas and painters like Rabindranath Tagore, Vincent Van Gogh, M.F. Hussain, Pablo Picasso, Amrita Sher Gill, Leonardo Da Vinci, Claude Monet and many more brought arts to life through their skills.`,
       'India, being the oldest and the first in the culture and also it\'s first in producing the different kind of artifacts or arts. Be it Vatsyayana who introduced art of love through Kamasutra or Raja Ravi Verma who portrayed the beauty of woman on canvas and brought it to life through his vision.',
     image: 'https://m.media-amazon.com/images/I/513rnVnTDeL._UF1000,1000_QL80_.jpg',
   },
   {
     year: 'Legacy',
-    title: 'The Lineage of Masters',
-    content:
+    content: `OUR MOTIVE
+
+We believe that art is a medium of communication, innovation and above all, an inspiration. So, we at Zigguratss brings you the worlds spectacular all the original arts from the artists across the globe.
+
+We provide artists the space which enables them to sell their artwork globally and connect with their respective audience and admirers and also manage the sale of their artwork, because art is valuable & precious and the artist should get proper acknowledge for their work.`,
       'There were times when artists used to engrave their craft on stones and walls, and later on it all converted into papers, canvas and painters like Rabindranath Tagore, Vincent Van Gogh, M.F. Hussain, Pablo Picasso, Amrita Sher Gill, Leonardo Da Vinci, Claude Monet and many more brought arts to life through their skills.',
     image: 'https://www.theartstory.org/images20/works/old_masters_2.jpg',
   },
@@ -59,8 +63,8 @@ const TimelineSection = () => {
   const smoothHeight = useSpring(lineHeight, { stiffness: 60, damping: 30 });
 
   return (
-    <section id="story" ref={containerRef} className="relative py-32 sm:py-40 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-24 text-center">
+    <section id="story" ref={containerRef} className="relative py-12 sm:py-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-8 text-center">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -88,7 +92,7 @@ const TimelineSection = () => {
           <motion.div style={{ height: smoothHeight }} className="absolute top-0 left-0 w-full bg-gallery-accent origin-top" />
         </div>
 
-        <div className="space-y-24 sm:space-y-32">
+        <div className="space-y-8 sm:space-y-12">
           {timelineData.map((item, i) => (
             <TimelineMilestone key={i} item={item} index={i} />
           ))}
@@ -301,9 +305,9 @@ const AboutContentSection = () => {
   const smoothY = useSpring(y, { stiffness: 80, damping: 35 });
 
   return (
-    <section className="w-full py-20 sm:py-28 bg-white">
+    <section className="w-full py-6 sm:py-10 bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:[grid-template-columns:40%_60%] gap-10 items-center">
+        <div className="grid grid-cols-1 lg:[grid-template-columns:40%_60%] gap-6 items-center">
         {/* Text column */}
         <div>
           <motion.p
@@ -323,7 +327,7 @@ const AboutContentSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: EASE, delay: 0.1 }}
-            className="font-sans text-lg text-gallery-muted max-w-2xl mb-6"
+            className="font-sans text-lg text-gallery-muted max-w-2xl mb-4"
           >
             We welcome Artists around the world to showcase their work here. Our aim and mission is to bring both the Artist's and Art lovers at one stage.
           </motion.p>
@@ -334,7 +338,7 @@ const AboutContentSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="flex flex-wrap gap-4 items-center mb-8"
+            className="flex flex-wrap gap-4 items-center mb-4"
           >
             {[
               { label: '500+', sub: 'Original Works' },
@@ -398,7 +402,7 @@ const QuoteBreak = () => {
   return (
     <section
       ref={ref}
-      className="relative py-32 sm:py-40 overflow-hidden bg-gallery-dark"
+      className="relative py-12 sm:py-16 overflow-hidden bg-gallery-dark"
     >
       <div className="absolute inset-0 bg-grain opacity-40" />
 
@@ -411,7 +415,7 @@ const QuoteBreak = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.5 }}
-          className="font-serif text-6xl sm:text-8xl text-gallery-accent/20 mb-6 leading-none select-none"
+          className="font-serif text-6xl sm:text-8xl text-gallery-accent/20 mb-4 leading-none select-none"
         >
           "
         </motion.div>
@@ -434,7 +438,7 @@ const QuoteBreak = () => {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, ease: EASE, delay: 0.3 }}
-          className="mx-auto mt-10 h-px w-16 bg-gallery-accent/40 origin-center"
+          className="mx-auto mt-6 h-px w-16 bg-gallery-accent/40 origin-center"
         />
         <motion.p
           initial={{ opacity: 0 }}
@@ -485,15 +489,15 @@ const teamMembers = [
 ];
 
 const TeamSection = () => (
-  <section className="relative py-32 sm:py-40 overflow-hidden">
+  <section className="relative py-12 sm:py-16 overflow-hidden">
     {/* Section header */}
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-20">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-6">
       <motion.p
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: EASE }}
-        className="font-sans text-xs tracking-[0.4em] uppercase text-gallery-accent mb-4"
+        className="font-sans text-xs tracking-[0.4em] uppercase text-gallery-accent mb-3"
       >
         The Collective
       </motion.p>
@@ -520,7 +524,7 @@ const TeamSection = () => (
 
     {/* Cards grid */}
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {teamMembers.map((member, i) => (
           <TeamCard key={member.name} member={member} index={i} />
         ))}
@@ -665,9 +669,9 @@ const values = [
 ];
 
 const ValuesSection = () => (
-  <section className="relative py-24 bg-gallery-warm">
+  <section className="relative py-8 bg-gallery-warm">
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {values.map((val, i) => (
           <motion.div
             key={val.title}
@@ -706,7 +710,7 @@ const ClosingCTA = () => {
   const bgY = useTransform(scrollYProgress, [0, 1], ['-10%', '10%']);
 
   return (
-    <section ref={ref} className="relative py-32 sm:py-40 overflow-hidden bg-gallery-dark">
+    <section ref={ref} className="relative py-12 sm:py-16 overflow-hidden bg-gallery-dark">
       {/* Parallax background image */}
       <motion.div
         style={{ y: bgY }}
@@ -728,7 +732,7 @@ const ClosingCTA = () => {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: EASE }}
-          className="mx-auto w-16 h-px bg-gallery-accent/50 mb-10 origin-center"
+          className="mx-auto w-16 h-px bg-gallery-accent/50 mb-6 origin-center"
         />
 
         <motion.p
@@ -746,7 +750,7 @@ const ClosingCTA = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: EASE, delay: 0.1 }}
-          className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-white leading-[1.1] mb-6"
+          className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-white leading-[1.1] mb-4"
         >
           Those who have fallen in love with works of our{' '}
           <span className="italic text-gallery-accent">Artist's</span> can call
@@ -758,7 +762,7 @@ const ClosingCTA = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="font-sans text-base text-white/50 max-w-md mx-auto mb-12 leading-relaxed"
+          className="font-sans text-base text-white/50 max-w-md mx-auto mb-6 leading-relaxed"
         >
           For suggestions to buy art for their home and office. Live with Art —
           Live with Zigguratss.
@@ -795,9 +799,9 @@ const ClosingCTA = () => {
    7 · FOOTER
    ═══════════════════════════════════════════════════ */
 const Footer = () => (
-  <footer className="bg-gallery-dark border-t border-white/5 py-16">
+  <footer className="bg-gallery-dark border-t border-white/5 py-8">
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mb-8">
         {/* Brand */}
         <div>
           <h3 className="font-serif text-xl text-white tracking-[0.1em] uppercase mb-4">
