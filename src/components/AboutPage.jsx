@@ -1,404 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useInView,
-  useMotionValue,
-  AnimatePresence,
-} from 'framer-motion';
+import Navbar from './Navbar';
+import LuxuryHero from './LuxuryHero';
+import { motion, useScroll, useTransform, useSpring, useInView, useMotionValue } from 'framer-motion';
 
-/* ═══════════════════════════════════════════════════
-   CONSTANTS & TRANSITIONS
-   ═══════════════════════════════════════════════════ */
+// Easing constant used across components
 const EASE = [0.16, 1, 0.3, 1];
-const EASE_OUT = [0.22, 1, 0.36, 1];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1.2, ease: EASE, delay },
-  }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    transition: { duration: 1, ease: EASE, delay },
-  }),
-};
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.15 } },
-};
-
-/* ═══════════════════════════════════════════════════
-   MAGNETIC CURSOR
-   ═══════════════════════════════════════════════════ */
-const MagneticCursor = () => {
-  const cursorX = useMotionValue(-100);
-  const cursorY = useMotionValue(-100);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
-  const smoothX = useSpring(cursorX, springConfig);
-  const smoothY = useSpring(cursorY, springConfig);
-
-  useEffect(() => {
-    const moveCursor = (e) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
-    };
-
-    const handleEnter = () => setIsHovering(true);
-    const handleLeave = () => setIsHovering(false);
-
-    window.addEventListener('mousemove', moveCursor);
-
-    const interactiveEls = document.querySelectorAll('a, button, [data-magnetic]');
-    interactiveEls.forEach((el) => {
-      el.addEventListener('mouseenter', handleEnter);
-      el.addEventListener('mouseleave', handleLeave);
-    });
-
-    return () => {
-      window.removeEventListener('mousemove', moveCursor);
-      interactiveEls.forEach((el) => {
-        el.removeEventListener('mouseenter', handleEnter);
-        el.removeEventListener('mouseleave', handleLeave);
-      });
-    };
-  }, [cursorX, cursorY, isVisible]);
-
-  if (!isVisible) return null;
-
-  return (
-    <>
-      {/* outer ring */}
-      <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
-        style={{
-          x: smoothX,
-          y: smoothY,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-      >
-        <motion.div
-          animate={{
-            width: isHovering ? 56 : 32,
-            height: isHovering ? 56 : 32,
-            borderColor: isHovering
-              ? 'rgba(201, 169, 110, 0.8)'
-              : 'rgba(26, 26, 26, 0.4)',
-          }}
-          transition={{ duration: 0.3, ease: EASE }}
-          className="rounded-full border"
-        />
-      </motion.div>
-      {/* inner dot */}
-      <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999]"
-        style={{
-          x: cursorX,
-          y: cursorY,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-      >
-        <motion.div
-          animate={{
-            width: isHovering ? 8 : 5,
-            height: isHovering ? 8 : 5,
-            backgroundColor: isHovering ? '#c9a96e' : '#1a1a1a',
-          }}
-          transition={{ duration: 0.2 }}
-          className="rounded-full"
-        />
-      </motion.div>
-    </>
-  );
-};
-
-/* ═══════════════════════════════════════════════════
-   PARALLAX FLOATING SHAPES
-   ═══════════════════════════════════════════════════ */
-const ParallaxShapes = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -300]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -500]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 180]);
-  const rotate2 = useTransform(scrollYProgress, [0, 1], [0, -120]);
-
-  return (
-    <div ref={ref} className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      <motion.div
-        style={{ y: y1, rotate: rotate1 }}
-        className="absolute top-[15%] right-[8%] w-64 h-64 rounded-full border border-gallery-accent/10 animate-pulse-soft"
-      />
-      <motion.div
-        style={{ y: y2, rotate: rotate2 }}
-        className="absolute top-[45%] left-[5%] w-40 h-40 border border-gallery-subtle/40 rotate-45"
-      />
-      <motion.div
-        style={{ y: y3 }}
-        className="absolute top-[70%] right-[15%] w-24 h-24 rounded-full bg-gallery-accent/[0.04] animate-float"
-      />
-      <motion.div
-        style={{ y: y1 }}
-        className="absolute top-[25%] left-[15%] w-2 h-2 rounded-full bg-gallery-accent/30 animate-float-slow"
-      />
-      <motion.div
-        style={{ y: y2 }}
-        className="absolute top-[60%] right-[30%] w-3 h-3 rounded-full bg-gallery-muted/20 animate-float"
-      />
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════
-   NAVIGATION BAR
-   ═══════════════════════════════════════════════════ */
-const Navbar = () => {
-  const { scrollYProgress } = useScroll();
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
-
-  return (
-    <motion.nav
-      className="fixed top-0 left-0 right-0 z-50 px-6 sm:px-10 lg:px-16 py-5"
-    >
-      <motion.div
-        style={{ opacity: bgOpacity }}
-        className="absolute inset-0 bg-gallery-bg/80 backdrop-blur-xl border-b border-gallery-subtle/50"
-      />
-      <div className="relative flex items-center justify-between max-w-7xl mx-auto">
-        <motion.a
-          href="/"
-          data-magnetic
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, ease: EASE }}
-          className="font-serif text-xl tracking-[0.15em] text-gallery-dark uppercase"
-        >
-          Zigguratss
-        </motion.a>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.1 }}
-          className="hidden md:flex items-center gap-10 font-sans text-xs tracking-[0.2em] uppercase text-gallery-muted"
-        >
-          {['Artworks', 'Artists', 'About', 'Contact'].map((item, i) => (
-            <a
-              key={item}
-              href={item === 'About' ? '#' : `https://zigguratss.com/${item.toLowerCase()}`}
-              data-magnetic
-              className={`relative transition-colors duration-300 hover:text-gallery-dark ${
-                item === 'About' ? 'text-gallery-dark font-medium' : ''
-              }`}
-            >
-              {item}
-              {item === 'About' && (
-                <span className="absolute -bottom-1 left-0 right-0 h-px bg-gallery-accent" />
-              )}
-            </a>
-          ))}
-        </motion.div>
-      </div>
-    </motion.nav>
-  );
-};
-
-/* ═══════════════════════════════════════════════════
-   1 · HERO — SPLIT SCREEN
-   ═══════════════════════════════════════════════════ */
-const HeroSection = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start start', 'end start'],
-  });
-
-  const textY = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-16"
-    >
-      <motion.div
-        style={{ opacity }}
-        className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[80vh]">
-          {/* Left — Text */}
-          <motion.div style={{ y: textY }} className="order-2 lg:order-1">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: 60 }}
-              transition={{ duration: 1.4, ease: EASE, delay: 0.2 }}
-              className="h-px bg-gallery-accent mb-8"
-            />
-
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.3}
-              className="font-sans text-xs tracking-[0.4em] uppercase text-gallery-accent mb-6"
-            >
-              Zigguratss Artwork LLP
-            </motion.p>
-
-            <motion.h1
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.5}
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-gallery-dark leading-[1.05] tracking-tight mb-8"
-            >
-              Bringing{' '}
-              <span className="italic text-gallery-accent">Artists</span> &{' '}
-              <span className="italic text-gallery-accent">Art Lovers</span>
-              <br />
-              at One Stage
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.7}
-              className="font-sans text-base sm:text-lg text-gallery-muted leading-relaxed max-w-lg mb-10"
-            >
-              We welcome Artists around the world to showcase their work here.
-              Our aim and mission is to bring both the Artist's and Art lovers
-              at one stage.
-            </motion.p>
-
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.9}
-              className="flex flex-wrap items-center gap-6"
-            >
-              <a
-                href="https://zigguratss.com/artworks"
-                data-magnetic
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-gallery-dark text-gallery-bg font-sans text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-500 hover:bg-gallery-accent hover:text-gallery-dark"
-              >
-                Explore Collection
-                <svg
-                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </a>
-              <a
-                href="#story"
-                data-magnetic
-                className="font-sans text-xs tracking-[0.2em] uppercase text-gallery-muted hover:text-gallery-dark transition-colors duration-300 border-b border-gallery-muted/30 pb-1"
-              >
-                Our Story
-              </a>
-            </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              animate="visible"
-              className="flex gap-12 mt-16 pt-8 border-t border-gallery-subtle"
-            >
-              {[
-                { number: '500+', label: 'Original Works' },
-                { number: '120+', label: 'Global Artists' },
-                { number: '30+', label: 'Countries Served' },
-              ].map((stat) => (
-                <motion.div key={stat.label} variants={fadeUp} custom={1.1}>
-                  <span className="font-serif text-2xl sm:text-3xl text-gallery-dark">
-                    {stat.number}
-                  </span>
-                  <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-gallery-muted mt-1">
-                    {stat.label}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Right — Featured Artwork Image */}
-          <motion.div
-            style={{ y: imgY }}
-            className="order-1 lg:order-2 relative"
-          >
-            <div className="relative overflow-hidden aspect-[3/4] lg:aspect-[4/5]">
-              <motion.div
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                transition={{ duration: 1.4, ease: EASE_OUT, delay: 0.3 }}
-                className="absolute inset-0"
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1800&auto=format"
-                  alt="Featured artwork — curated gallery piece"
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-
-              {/* Reveal overlay that slides away */}
-              <motion.div
-                initial={{ y: 0 }}
-                animate={{ y: '-100%' }}
-                transition={{ duration: 1.4, ease: EASE_OUT, delay: 0.3 }}
-                className="absolute inset-0 bg-gallery-bg z-10"
-              />
-            </div>
-
-            {/* Artwork label */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.5 }}
-              className="absolute -bottom-4 -left-4 lg:-left-8 bg-white/90 backdrop-blur-sm px-6 py-4 border border-gallery-subtle/60"
-            >
-              <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-gallery-muted">
-                The Zigguratss
-              </p>
-              <p className="font-serif text-sm text-gallery-dark mt-1">
-                A Brief about Artworks
-              </p>
-            </motion.div>
-
-            {/* Decorative frame corner */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.8 }}
-              className="absolute -top-3 -right-3 w-16 h-16 border-t border-r border-gallery-accent/30"
-            />
-          </motion.div>
-        </div>
-      </motion.div>
-    </section>
-  );
-};
 
 /* ═══════════════════════════════════════════════════
    2 · SCROLL PROGRESS TIMELINE
@@ -409,30 +16,35 @@ const timelineData = [
     title: 'Our Story',
     content:
       'We started our journey with a thought of bringing worlds renowned and upcoming artists on one platform and connect them to the art collectors worldwide. Zigguratss is the beginning of a new era in the world of art business.',
+    image: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format',
   },
   {
     year: 'Heritage',
     title: 'A Brief History of Art',
     content:
       'India, being the oldest and the first in the culture and also it\'s first in producing the different kind of artifacts or arts. Be it Vatsyayana who introduced art of love through Kamasutra or Raja Ravi Verma who portrayed the beauty of woman on canvas and brought it to life through his vision.',
+    image: 'https://m.media-amazon.com/images/I/513rnVnTDeL._UF1000,1000_QL80_.jpg',
   },
   {
     year: 'Legacy',
     title: 'The Lineage of Masters',
     content:
       'There were times when artists used to engrave their craft on stones and walls, and later on it all converted into papers, canvas and painters like Rabindranath Tagore, Vincent Van Gogh, M.F. Hussain, Pablo Picasso, Amrita Sher Gill, Leonardo Da Vinci, Claude Monet and many more brought arts to life through their skills.',
+    image: 'https://www.theartstory.org/images20/works/old_masters_2.jpg',
   },
   {
     year: 'Purpose',
     title: 'Our Motive',
     content:
       'We believe that art is a medium of communication, innovation and above all, an inspiration. So, we at Zigguratss brings you the worlds spectacular all the original arts from the artists across the globe.',
+    image: 'https://zigguratss.com/assets/images/motiveimage.jpg',
   },
   {
     year: 'Mission',
     title: 'Empowering Artists',
     content:
       'We provide artists the space which enables them to sell their artwork globally and connect with their respective audience and admirers and also manage the sale of their artwork, because art is valuable & precious and the artist should get proper acknowledge for their work.',
+    image: 'https://classbento.com.au/images/article/empowering-artists-to-earn-more-doing-what-they-love-800.jpg',
   },
 ];
 
@@ -447,12 +59,7 @@ const TimelineSection = () => {
   const smoothHeight = useSpring(lineHeight, { stiffness: 60, damping: 30 });
 
   return (
-    <section
-      id="story"
-      ref={containerRef}
-      className="relative py-32 sm:py-40 overflow-hidden"
-    >
-      {/* Section header */}
+    <section id="story" ref={containerRef} className="relative py-32 sm:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-24">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -463,6 +70,7 @@ const TimelineSection = () => {
         >
           Chronicle
         </motion.p>
+
         <motion.h2
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -474,18 +82,12 @@ const TimelineSection = () => {
         </motion.h2>
       </div>
 
-      {/* Timeline */}
       <div className="relative max-w-5xl mx-auto px-6 sm:px-10 lg:px-16">
-        {/* Progress line */}
         <div className="absolute left-6 sm:left-10 lg:left-16 top-0 bottom-0 w-px">
           <div className="h-full w-full bg-gallery-subtle" />
-          <motion.div
-            style={{ height: smoothHeight }}
-            className="absolute top-0 left-0 w-full bg-gallery-accent origin-top"
-          />
+          <motion.div style={{ height: smoothHeight }} className="absolute top-0 left-0 w-full bg-gallery-accent origin-top" />
         </div>
 
-        {/* Milestones */}
         <div className="space-y-24 sm:space-y-32">
           {timelineData.map((item, i) => (
             <TimelineMilestone key={i} item={item} index={i} />
@@ -500,8 +102,10 @@ const TimelineMilestone = ({ item, index }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
 
+  const rowReverse = index % 2 === 1 ? 'lg:flex-row-reverse' : '';
+
   return (
-    <div ref={ref} className="relative pl-12 sm:pl-16">
+    <div ref={ref} className={`relative pl-12 sm:pl-16`}>
       {/* Dot on timeline */}
       <motion.div
         initial={{ scale: 0 }}
@@ -513,42 +117,61 @@ const TimelineMilestone = ({ item, index }) => {
         <div className="absolute inset-0 rounded-full bg-gallery-accent/30 animate-ping" />
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={inView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
-        className="font-sans text-[10px] tracking-[0.4em] uppercase text-gallery-accent mb-3"
-      >
-        {item.year}
-      </motion.div>
+      <div className={`relative z-0 flex flex-col lg:flex-row items-start gap-6 ${rowReverse}`}>
+        {/* Side image */}
+        {item.image && (
+          <figure className="w-full lg:w-1/3 rounded-lg overflow-hidden">
+            <img
+              src={item.image}
+              alt={item.title}
+              loading="lazy"
+              className="w-full h-48 sm:h-64 lg:h-56 object-cover rounded-md shadow-sm"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          </figure>
+        )}
 
-      <motion.h3
-        initial={{ opacity: 0, y: 30 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 1, ease: EASE, delay: 0.2 }}
-        className="font-serif text-2xl sm:text-3xl lg:text-4xl text-gallery-dark mb-4"
-      >
-        {item.title}
-      </motion.h3>
+        {/* Text content */}
+        <div className="w-full lg:w-2/3">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
+            className="font-sans text-[10px] tracking-[0.4em] uppercase text-gallery-accent mb-3"
+          >
+            {item.year}
+          </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
-        className="font-sans text-base text-gallery-muted leading-[1.8] max-w-2xl"
-      >
-        {item.content}
-      </motion.p>
+          <motion.h3
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: EASE, delay: 0.2 }}
+            className="font-serif text-2xl sm:text-3xl lg:text-4xl text-gallery-dark mb-4"
+          >
+            {item.title}
+          </motion.h3>
 
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={inView ? { scaleX: 1 } : {}}
-        transition={{ duration: 1, ease: EASE, delay: 0.6 }}
-        className="mt-8 h-px w-24 bg-gallery-subtle origin-left"
-      />
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+            className="font-sans text-base text-gallery-muted leading-[1.6]"
+          >
+            {item.content}
+          </motion.p>
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1, ease: EASE, delay: 0.6 }}
+            className="mt-8 h-px w-24 bg-gallery-subtle origin-left"
+          />
+        </div>
+      </div>
     </div>
   );
 };
+
 
 /* ═══════════════════════════════════════════════════
    3 · ARTWORK GALLERY — CURATED COLLECTION
@@ -664,172 +287,90 @@ const artworks = [
   },
 ];
 
-const ArtworkGallery = () => (
-  <section className="relative py-32 sm:py-40 overflow-hidden bg-gallery-warm">
-    <div className="absolute inset-0 bg-grain opacity-20" />
 
-    {/* Section header */}
-    <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-20">
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, ease: EASE }}
-        className="font-sans text-xs tracking-[0.4em] uppercase text-gallery-accent mb-4"
-      >
-        A Brief about Artworks
-      </motion.p>
-      <motion.h2
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.2, ease: EASE, delay: 0.1 }}
-        className="font-serif text-4xl sm:text-5xl lg:text-6xl text-gallery-dark mb-6"
-      >
-        Curated <span className="italic text-gallery-accent">Collection</span>
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.3 }}
-        className="font-sans text-base text-gallery-muted max-w-2xl leading-relaxed"
-      >
-        Paintings, sculptures, serigraphs, photography — each of these art forms
-        has the ability to evoke emotions, tell a story, and bring joy to those
-        who experience them.
-      </motion.p>
-    </div>
+// ═══════════════════════════════════════════════════
+// 3 · ABOUT PAGE FULL CONTENT SECTION (100% WIDTH)
+// ═══════════════════════════════════════════════════
+const AboutContentSection = () => (
+  <section className="w-full py-20 sm:py-28 bg-white">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        {/* Text column */}
+        <div>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="font-sans text-xs tracking-[0.4em] uppercase text-gallery-accent mb-4"
+          >
+            Welcome to Zigguratss
+          </motion.p>
 
-    {/* Masonry-style grid */}
-    <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-        {artworks.map((art, i) => (
-          <ArtworkCard key={art.id} artwork={art} index={i} />
-        ))}
+          <LuxuryHero />
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: EASE, delay: 0.1 }}
+            className="font-sans text-lg text-gallery-muted max-w-2xl mb-6"
+          >
+            We welcome Artists around the world to showcase their work here. Our aim and mission is to bring both the Artist's and Art lovers at one stage.
+          </motion.p>
+
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="flex flex-wrap gap-4 items-center mb-8"
+          >
+            {[
+              { label: '500+', sub: 'Original Works' },
+              { label: '120+', sub: 'Global Artists' },
+              { label: '30+', sub: 'Countries Served' },
+            ].map((s) => (
+              <div key={s.label} className="flex-shrink-0 bg-gallery-accent/10 rounded-md px-4 py-3">
+                <div className="font-serif text-2xl text-gallery-dark font-semibold">{s.label}</div>
+                <div className="text-xs text-gallery-muted">{s.sub}</div>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.25 }}
+            className="flex flex-wrap gap-4"
+          >
+            <a href="/artworks" className="px-6 py-3 bg-black text-white font-sans text-sm font-semibold rounded-none hover:scale-[1.01] transition-transform">Explore Collection</a>
+            <a href="#story" className="px-6 py-3 text-black underline font-sans text-sm font-semibold rounded-md hover:bg-gallery-accent/5 transition-colors">Our Story</a>
+          </motion.div>
+        </div>
+
+        {/* Image column */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: EASE, delay: 0.1 }}
+          className="w-full rounded-lg overflow-hidden shadow-lg"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abraham_Mignon_-_Flowers_in_a_metal_vase.jpg/500px-Abraham_Mignon_-_Flowers_in_a_metal_vase.jpg?20190327095151"
+            alt="Flowers in a metal vase by Abraham Mignon"
+            loading="lazy"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            className="w-full h-[640px] object-cover"
+          />
+        </motion.div>
       </div>
     </div>
-
-    {/* View all CTA */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-      className="relative z-10 text-center mt-20"
-    >
-      <a
-        href="https://zigguratss.com/artworks"
-        data-magnetic
-        className="group inline-flex items-center gap-3 px-10 py-4 bg-gallery-dark text-gallery-bg font-sans text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-500 hover:bg-gallery-accent hover:text-gallery-dark"
-      >
-        View All Artworks
-        <svg
-          className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </a>
-    </motion.div>
   </section>
 );
-
-const ArtworkCard = ({ artwork, index }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.15 });
-
-  // Vary aspect ratios for masonry look
-  const aspects = [
-    'aspect-[3/4]',
-    'aspect-[4/5]',
-    'aspect-[2/3]',
-    'aspect-square',
-    'aspect-[3/4]',
-    'aspect-[5/6]',
-    'aspect-[2/3]',
-    'aspect-[4/5]',
-    'aspect-[3/4]',
-    'aspect-square',
-    'aspect-[4/5]',
-    'aspect-[3/4]',
-  ];
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.9, ease: EASE, delay: (index % 3) * 0.12 }}
-      className="break-inside-avoid group"
-      data-magnetic
-    >
-      <div
-        className="relative overflow-hidden rounded-lg transition-all duration-500"
-        style={{
-          background: 'rgba(255, 255, 255, 0.6)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '0.5px solid rgba(201, 169, 110, 0.12)',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.04)',
-        }}
-      >
-        {/* Image */}
-        <div className={`relative overflow-hidden ${aspects[index % aspects.length]}`}>
-          <img
-            src={artwork.image}
-            alt={artwork.title}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          {/* Hover overlay info */}
-          <div className="absolute bottom-0 left-0 right-0 p-5 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-            <span className="inline-block bg-gallery-accent/90 text-gallery-dark font-sans text-[10px] font-semibold tracking-[0.15em] uppercase px-3 py-1.5 mb-2">
-              {artwork.medium}
-            </span>
-            <p className="font-sans text-xs text-white/80">
-              {artwork.dimensions}
-            </p>
-          </div>
-        </div>
-
-        {/* Card info */}
-        <div className="p-5">
-          <h3 className="font-serif text-base sm:text-lg text-gallery-dark leading-tight mb-1 group-hover:text-gallery-accent transition-colors duration-400">
-            {artwork.title}
-          </h3>
-          <p className="font-sans text-xs text-gallery-muted tracking-wide mb-3">
-            by {artwork.artist}
-          </p>
-          <div className="flex items-center justify-between pt-3 border-t border-gallery-subtle/60">
-            <span className="font-sans text-sm text-gallery-dark font-medium">
-              {artwork.price}
-            </span>
-            <button
-              aria-label={`View ${artwork.title}`}
-              className="w-8 h-8 rounded-full border border-gallery-dark/15 flex items-center justify-center group/btn hover:border-gallery-accent hover:bg-gallery-accent transition-all duration-300"
-            >
-              <svg
-                className="w-3.5 h-3.5 text-gallery-muted group-hover/btn:text-gallery-dark transition-colors duration-300 -rotate-45"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
 /* ═══════════════════════════════════════════════════
    4 · EDITORIAL QUOTE BREAK
@@ -902,36 +443,32 @@ const QuoteBreak = () => {
    ═══════════════════════════════════════════════════ */
 const teamMembers = [
   {
-    name: 'Vijay Bhatt',
-    role: 'Founder & Chief Curator',
-    bio: 'Visionary behind the Zigguratss ethos. Two decades in art curation and a relentless pursuit of authentic provenance.',
-    image:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format',
+    name: 'AKANSHA N BHATT',
+    role: 'AVP - Client Relations',
+    bio: `She is pursuing her career in Public Relations but gained experience in marketing at American Express. It was her passion for art that led her to join ZIGGURATSS, from the very beginning. She is the global head of client relations at ZIGGURATSS, and has been with the company since its inception in 2021. During her tenure, she has undertaken several roles, from business development and marketing to event management and operations. She now focusses on ZIGGURATSS domestic and international expansion, strategy, as well as building up the team. She is fond of cinema and travelling and when she's in private she enjoys live music!`,
+    image: 'https://zigguratss.com/assets/images/akansha.jpg',
+    accent: 'from-rose-300/20 to-transparent',
+  },
+  {
+    name: 'VIJAY BHATT',
+    role: 'Founder & CEO',
+    bio: `He is an emerging entrepreneur with vast knowledge in the field of ARTS. He is an ardent fan of original Artwork, and loves to bring forward the spectacular works of famous artists from across the globe to one point i.e. THE ZIGGURATSS, where the whole world and its amazing Artwork comes alive from them to You. Vijay is bent upon promoting the bestest of ART and giving a platform for new-comers and established artists too with a zeal to represent their talent on ZIGGURATSS.`,
+    image: 'https://zigguratss.com/assets/images/vijaypiclatest.jpg',
     accent: 'from-gallery-accent/20 to-transparent',
   },
   {
-    name: 'Mukesh Dabral',
-    role: 'Director of Operations',
-    bio: 'The architect of seamless logistics. Ensures every masterpiece arrives in pristine condition, anywhere on the globe.',
-    image:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format',
+    name: 'MUKESH DABRAL',
+    role: 'Co-Founder & CFO',
+    bio: `He is a MBA (Finance) professional and he has worked with professionally managed corporates in the capacity of Senior Finance and Accounts Manager. He has experience of handling corporate affairs in different areas for more than 7 Years. He has helped organisations to grow business in India and operating it smoothly. Mukesh has vast knowledge and a thorough understanding of Accounting Rules and Regulations, as well as the complex corporate taxation system.`,
+    image: 'https://zigguratss.com/assets/images/mukesh.jpg',
     accent: 'from-blue-300/20 to-transparent',
   },
   {
-    name: 'Ajay Singh',
-    role: 'Head of Artist Relations',
-    bio: 'The bridge between raw talent and global recognition. Scouts emerging voices from studios across India and beyond.',
-    image:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format',
+    name: 'AJAY SINGH',
+    role: 'Co-Founder & AVP-S & M',
+    bio: `Ajay is the Co-Founder & AVP- Sales & Marketing and also looks after the technology part of ZIGGURATSS. He is responsible for all aspects of growing and marketing ZIGGURATSS to establish its presence and dominance in the online artwork market. He designed and developed not only the ZIGGURATSS online store, but also the resource planning, customer relationship and supply chain management systems that ZIGGURATSS do every day.`,
+    image: 'https://zigguratss.com/assets/images/ajay.jpeg',
     accent: 'from-emerald-300/20 to-transparent',
-  },
-  {
-    name: 'Akansha N Bhatt',
-    role: 'Creative Director',
-    bio: 'Shapes the visual narrative of Zigguratss. A designer with an artist\'s soul and a curator\'s precision.',
-    image:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format',
-    accent: 'from-rose-300/20 to-transparent',
   },
 ];
 
@@ -983,65 +520,105 @@ const TeamSection = () => (
 const TeamCard = ({ member, index }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
+  const [expanded, setExpanded] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const shortBio = member.bio.length > 180 ? member.bio.slice(0, 180) + '…' : member.bio;
 
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 60 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, ease: EASE, delay: index * 0.15 }}
-      whileHover={{ scale: 1.05, y: -8 }}
+      transition={{ duration: 1, ease: EASE, delay: index * 0.12 }}
+      whileHover={{ scale: 1.03, y: -6 }}
       className="group relative"
       data-magnetic
     >
-      {/* Glassmorphism card */}
-      <div
-        className="relative overflow-hidden rounded-2xl p-6 sm:p-8 transition-all duration-500"
-        style={{
-          background: 'rgba(255, 255, 255, 0.5)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '0.5px solid rgba(201, 169, 110, 0.15)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.04)',
-        }}
-      >
-        {/* Gradient glow on hover */}
+      <div className="relative overflow-visible rounded-2xl transition-all duration-700">
         <div
-          className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${member.accent} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`}
-        />
-
-        {/* Portrait */}
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 overflow-hidden rounded-full">
-          <img
-            src={member.image}
-            alt={member.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
+          style={{
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '0.5px solid rgba(201, 169, 110, 0.12)',
+            boxShadow: '0 10px 36px rgba(0, 0, 0, 0.06)',
+          }}
+          onClick={() => setExpanded((s) => !s)}
+        >
+          <div
+            className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${member.accent} blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`}
           />
-          <div className="absolute inset-0 rounded-full border border-gallery-accent/20" />
-        </div>
 
-        {/* Info */}
-        <div className="text-center relative z-10">
-          <h3 className="font-serif text-lg sm:text-xl text-gallery-dark mb-1 group-hover:text-gallery-accent transition-colors duration-500">
-            {member.name}
-          </h3>
-          <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-gallery-accent mb-4">
-            {member.role}
-          </p>
-          <p className="font-sans text-sm text-gallery-muted leading-relaxed">
-            {member.bio}
-          </p>
-        </div>
+          {/* Portrait (click to view larger) */}
+          <div className="relative w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full cursor-pointer" onClick={(e) => { e.stopPropagation(); setShowOverlay(true); }}>
+            <img
+              src={member.image}
+              alt={member.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 rounded-full border border-gallery-accent/20" />
+          </div>
 
-        {/* Bottom accent line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 + index * 0.1 }}
-          className="mt-6 h-px w-full bg-gradient-to-r from-transparent via-gallery-accent/30 to-transparent origin-center"
-        />
+          <div className="text-center relative z-10">
+            <h3 className="font-serif text-lg sm:text-xl text-gallery-dark mb-1 group-hover:text-gallery-accent transition-colors duration-300">
+              {member.name}
+            </h3>
+            <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-gallery-accent mb-4">
+              {member.role}
+            </p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="font-sans text-sm text-gallery-muted leading-relaxed"
+            >
+              {expanded ? (
+                <motion.p initial={{ height: 0 }} animate={{ height: 'auto' }} transition={{ duration: 0.4 }}>
+                  {member.bio}
+                </motion.p>
+              ) : (
+                <p>{shortBio}</p>
+              )}
+            </motion.div>
+
+            <button
+              aria-expanded={expanded}
+              className="mt-3 text-xs font-medium text-gallery-accent hover:underline"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((s) => !s);
+              }}
+            >
+              {expanded ? 'Show less' : 'Read more'}
+            </button>
+          </div>
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 + index * 0.05 }}
+            className="mt-6 h-px w-full bg-gradient-to-r from-transparent via-gallery-accent/30 to-transparent origin-center"
+          />
+        </div>
       </div>
+
+      {/* Full-image overlay (no rotation) */}
+      {showOverlay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" onClick={() => setShowOverlay(false)}>
+          <div className="relative w-full max-w-3xl">
+            <img
+              src={member.image}
+              alt={`${member.name} full`}
+              className="w-full h-auto rounded-lg shadow-2xl cursor-pointer"
+              onClick={() => setShowOverlay(false)}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -1305,14 +882,116 @@ const Footer = () => (
 /* ═══════════════════════════════════════════════════
    MAIN EXPORT — ABOUT PAGE
    ═══════════════════════════════════════════════════ */
+
+const PaintingIcon = () => (
+  <svg className="w-8 h-8 text-gallery-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+  </svg>
+);
+const SculptureIcon = () => (
+  <svg className="w-8 h-8 text-gallery-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <ellipse cx="12" cy="8" rx="6" ry="4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    <rect x="8" y="12" width="8" height="6" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+  </svg>
+);
+const SerigraphIcon = () => (
+  <svg className="w-8 h-8 text-gallery-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <rect x="4" y="7" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    <path d="M4 12h16" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+const PhotographyIcon = () => (
+  <svg className="w-8 h-8 text-gallery-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <rect x="3" y="7" width="18" height="12" rx="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    <circle cx="12" cy="13" r="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
+  </svg>
+);
+
+const artForms = [
+  {
+    name: 'Painting',
+    icon: <PaintingIcon />,
+    desc: 'Works of art created using pigments applied to a flat surface.'
+  },
+  {
+    name: 'Sculpture',
+    icon: <SculptureIcon />,
+    desc: 'Three-dimensional works of art made from stone, wood, or metal.'
+  },
+  {
+    name: 'Serigraph',
+    icon: <SerigraphIcon />,
+    desc: 'Limited edition prints made by pressing ink through a stencil.'
+  },
+  {
+    name: 'Photography',
+    icon: <PhotographyIcon />,
+    desc: 'The art of capturing light to create an image.'
+  },
+];
+
+const ArtworksBriefSection = () => (
+  <section className="relative py-32 sm:py-40 bg-gallery-warm overflow-hidden">
+    <div className="absolute inset-0 bg-grain opacity-20 pointer-events-none" />
+    <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
+      <motion.h2
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.2, ease: EASE }}
+        className="font-serif text-4xl sm:text-5xl lg:text-6xl text-gallery-dark mb-8 text-center"
+      >
+        A Brief about <span className="italic text-gallery-accent">Artworks</span>
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1, ease: EASE, delay: 0.1 }}
+        className="font-sans text-lg text-gallery-muted text-center max-w-3xl mx-auto mb-12"
+      >
+        All Artworks have the power to captivate and inspire. Paintings are works of art that are created using pigments applied to a flat surface. Sculptures, on the other hand, are three-dimensional works of art that are typically made from materials such as stone, wood, or metal. Serigraphs, also known as silkscreen prints, are limited edition prints made by pressing ink through a stencil onto paper or fabric. Photography, meanwhile, is the art of capturing light to create an image. Whether it's through the lens of a camera or the brush strokes of a painter, each of these art forms has the ability to evoke emotions, tell a story, and bring joy to those who experience them. <span className="text-gallery-accent font-semibold">There are many other forms of artwork created by artists, and we are on a mission to make those artworks available to art lovers and bring artists—the creators of phenomenal work—to the front stage.</span>
+      </motion.p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        {artForms.map((form, i) => (
+          <motion.div
+            key={form.name}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: i * 0.1 }}
+            className="flex flex-col items-center bg-white/70 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 group cursor-pointer"
+            whileHover={{ scale: 1.06, y: -6 }}
+            data-magnetic
+          >
+            <div className="mb-4">{form.icon}</div>
+            <h4 className="font-serif text-xl text-gallery-dark mb-2 group-hover:text-gallery-accent transition-colors duration-300">{form.name}</h4>
+            <p className="font-sans text-sm text-gallery-muted text-center">{form.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="text-center"
+      >
+        <span className="inline-block px-8 py-4 bg-gallery-accent text-gallery-dark font-sans text-base font-semibold rounded-full shadow-lg tracking-wide animate-pulse cursor-pointer select-none">
+          Discover More Art Forms
+        </span>
+      </motion.div>
+    </div>
+  </section>
+);
+
 const AboutPage = () => (
   <main className="relative bg-gallery-bg overflow-hidden">
-    <MagneticCursor />
-    <ParallaxShapes />
     <Navbar />
-    <HeroSection />
+    <AboutContentSection />
     <TimelineSection />
-    <ArtworkGallery />
+    <ArtworksBriefSection />
     <QuoteBreak />
     <TeamSection />
     <ValuesSection />
