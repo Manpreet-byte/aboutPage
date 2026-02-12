@@ -60,7 +60,7 @@ const TimelineSection = () => {
 
   return (
     <section id="story" ref={containerRef} className="relative py-32 sm:py-40 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-24">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 mb-24 text-center">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
