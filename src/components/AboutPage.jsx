@@ -291,10 +291,19 @@ const artworks = [
 // ═══════════════════════════════════════════════════
 // 3 · ABOUT PAGE FULL CONTENT SECTION (100% WIDTH)
 // ═══════════════════════════════════════════════════
-const AboutContentSection = () => (
-  <section className="w-full py-20 sm:py-28 bg-white">
-    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+const AboutContentSection = () => {
+  const imgRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: imgRef,
+    offset: ['start end', 'end start'],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const smoothY = useSpring(y, { stiffness: 80, damping: 35 });
+
+  return (
+    <section className="w-full py-20 sm:py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         {/* Text column */}
         <div>
           <motion.p
@@ -351,26 +360,29 @@ const AboutContentSection = () => (
           </motion.div>
         </div>
 
-        {/* Image column */}
+        {/* Image column with subtle parallax */}
         <motion.div
+          ref={imgRef}
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 1, ease: EASE, delay: 0.1 }}
           className="w-full rounded-lg overflow-hidden shadow-lg"
         >
-          <img
+          <motion.img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abraham_Mignon_-_Flowers_in_a_metal_vase.jpg/500px-Abraham_Mignon_-_Flowers_in_a_metal_vase.jpg?20190327095151"
             alt="Flowers in a metal vase by Abraham Mignon"
             loading="lazy"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            style={{ y: smoothY }}
             className="w-full h-[640px] object-cover"
           />
         </motion.div>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 /* ═══════════════════════════════════════════════════
    4 · EDITORIAL QUOTE BREAK
@@ -519,7 +531,6 @@ const TeamSection = () => (
 
 const TeamCard = ({ member, index }) => {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.2 });
   const [expanded, setExpanded] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -529,9 +540,10 @@ const TeamCard = ({ member, index }) => {
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 60 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1, ease: EASE, delay: index * 0.12 }}
-      whileHover={{ scale: 1.03, y: -6 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.8, ease: EASE, delay: index * 0.2 }}
+      whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
       className="group relative"
       data-magnetic
     >
