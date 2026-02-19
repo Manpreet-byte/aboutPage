@@ -14,3 +14,15 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Deployment (Netlify)
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+
+This repository includes a `netlify.toml` with the build settings and a
+`public/_redirects` file configured for SPA routing. To deploy:
+
+1. Create a new site on Netlify and link this GitHub repository.
+2. Set the build command to `npm run build` and the publish directory to `dist`.
+3. (Optional) Use Netlify CLI for local testing: `npm run dev`.
